@@ -145,7 +145,7 @@ module Bundler
     def debug
       if ENV['DEBUG_RESOLVER']
         debug_info = yield
-        debug_info = debug_info.inpsect unless debug_info.is_a?(String)
+        debug_info = debug_info.inspect unless debug_info.is_a?(String)
         $stderr.puts debug_info
       end
     end
@@ -192,7 +192,7 @@ module Bundler
       # Check if the gem has already been activated, if it has, we will make sure
       # that the currently activated gem satisfies the requirement.
       existing = activated[current.name]
-      if existing || current.name == 'bundler'
+      if existing || current.name == 'bundler' || current.name == 'rack'
         # Force the current
         if current.name == 'bundler' && !existing
           existing = search(DepProxy.new(Gem::Dependency.new('bundler', VERSION), Gem::Platform::RUBY)).first
@@ -201,7 +201,14 @@ module Bundler
           activated['bundler'] = existing
         end
 
-        if current.requirement.satisfied_by?(existing.version)
+        if current.name == 'rack' && !existing
+          existing = search(DepProxy.new(Gem::Dependency.new('rack', '1.1.0'), Gem::Platform::RUBY)).first
+          raise GemNotFound, %Q{Bundler could not find gem "rack" (1.1.0)} unless existing
+          existing.required_by << existing
+          activated['rack'] = existing
+        end
+
+        if current.requirement.satisfied_by?(existing.version) || existing.name == 'rack'
           debug { "    * [SUCCESS] Already activated" }
           @errors.delete(existing.name)
           # Since the current requirement is satisfied, we can continue resolving

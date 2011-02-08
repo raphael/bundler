@@ -1,5 +1,8 @@
 require 'pathname'
 
+# Don't validate the requirements for dependencies in this list
+FORCED_MATCHES = %w{ rack }
+
 if defined?(Gem::QuickLoader)
   # Gem Prelude makes me a sad panda :'(
   Gem::QuickLoader.load_full_rubygems_library
@@ -118,6 +121,8 @@ module Gem
     end
 
     def matches_spec?(spec)
+      return true if FORCED_MATCHES.include?(spec.name) 
+
       # name can be a Regexp, so use ===
       return false unless name === spec.name
       return true  if requirement.none?

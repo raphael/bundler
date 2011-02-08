@@ -202,9 +202,8 @@ module Bundler
         end
 
         if current.name == 'rack' && !existing
-          existing = search(DepProxy.new(Gem::Dependency.new('rack', '1.1.0'), Gem::Platform::RUBY)).first
-          existing ||= search(DepProxy.new(Gem::Dependency.new('rack', '1.0.1'), Gem::Platform::RUBY)).first
-          raise GemNotFound, %Q{Bundler could not find gem "rack" (1.1.0)} unless existing
+          existing = search(DepProxy.new(Gem::Dependency.new('rack', '1.2.1'), Gem::Platform::RUBY)).first
+          raise GemNotFound, %Q{Bundler could not find gem "rack" (1.2.1) (please run 'gem install rack -v 1.2.1' first)} unless existing
           existing.required_by << existing
           activated['rack'] = existing
         end
